@@ -2,7 +2,13 @@
 name = "contains"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "A Container trait"
+documentation = "https://docs.rs/container"
+readme = "Readme.md"
+repository = "https://github.com/Jon-Davis/contains"
+license = "MIT"
+license-file = "LICENSE"
+keyword = ["contains", "container", "in"]
+categories = ["rust-patterns"]
 
 [dependencies]
