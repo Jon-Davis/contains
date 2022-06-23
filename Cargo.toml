@@ -7,7 +7,6 @@ documentation = "https://docs.rs/container"
 readme = "Readme.md"
 repository = "https://github.com/Jon-Davis/contains"
 license = "MIT"
-license-file = "LICENSE"
 keyword = ["contains", "container", "in"]
 categories = ["rust-patterns"]
 
