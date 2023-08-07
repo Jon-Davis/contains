@@ -13,7 +13,7 @@ let option = Some(3);
 
 let containers: &[&dyn Container<usize>] = &[&vec, &range, &option];
 for container in containers {
-  assert!(container.does_contain(&3));
+  assert!(container.contains(&3));
 }
 ```
 
@@ -24,6 +24,6 @@ a container. Mainly it reverse the call order by providing the `is_in` method.
 use contains::{Container, In};
 
 let range = 0..5;
-assert!(range.does_contain(&3));    // using does_contain
-assert!(3.is_in(&range));           // using in
+assert!(range.contains(&3));    // using contains
+assert!(3.is_in(&range));       // using in
 ```

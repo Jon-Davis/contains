@@ -13,7 +13,7 @@
 //!
 //! let containers: &[&dyn Container<usize>] = &[&vec, &range, &option];
 //! for container in containers {
-//!   assert!(container.does_contain(&3));
+//!   assert!(container.contains(&3));
 //! }
 //! ```
 //!
@@ -24,8 +24,8 @@
 //! use contains::{Container, In};
 //!
 //! let range = 0..5;
-//! assert!(range.does_contain(&3));    // using does_contain
-//! assert!(3.is_in(&range));           // using in
+//! assert!(range.contains(&3));    // using contains
+//! assert!(3.is_in(&range));       // using in
 //! ```
 
 /// ## Container
@@ -40,7 +40,7 @@
 ///
 /// let containers: &[&dyn Container<usize>] = &[&vec, &range, &option];
 /// for container in containers {
-///   assert!(container.does_contain(&3));
+///   assert!(container.contains(&3));
 /// }
 /// ```
 ///
@@ -48,12 +48,12 @@
 /// ```rust
 /// use contains::Container;
 ///
-/// assert!("hello world!".does_contain(&"hello"));
+/// assert!("hello world!".contains(&"hello"));
 ///
-/// assert!([1,2,3,4,5].does_contain(&[3, 4]));
+/// assert!([1,2,3,4,5].contains(&[3, 4]));
 /// ```
 pub trait Container<T> {
-    fn does_contain(&self, item: &T) -> bool;
+    fn contains(&self, item: &T) -> bool;
 }
 
 /// ## In
@@ -63,8 +63,8 @@ pub trait Container<T> {
 /// use contains::{Container, In};
 ///
 /// let range = 0..5;
-/// assert!(range.does_contain(&3));    // using does_contain
-/// assert!(3.is_in(&range));           // using in
+/// assert!(range.contains(&3));    // using contains
+/// assert!(3.is_in(&range));       // using in
 /// ```
 pub trait In<C> {
     fn is_in(&self, container: &C) -> bool;
@@ -75,7 +75,7 @@ where
     C: Container<T>,
 {
     fn is_in(&self, container: &C) -> bool {
-        container.does_contain(self)
+        container.contains(self)
     }
 }
 
@@ -83,8 +83,8 @@ impl<T> Container<T> for Vec<T>
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
-        self.contains(item)
+    fn contains(&self, item: &T) -> bool {
+        <[T]>::contains(self, item)
     }
 }
 
@@ -92,7 +92,7 @@ impl<T> Container<T> for Option<T>
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         matches!(self, Some(x) if x == item)
     }
 }
@@ -101,7 +101,7 @@ impl<T, U> Container<T> for Result<T, U>
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         matches!(self, Ok(x) if x == item)
     }
 }
@@ -110,7 +110,7 @@ impl<T> Container<T> for std::collections::HashSet<T>
 where
     T: Eq + std::hash::Hash,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
@@ -119,7 +119,7 @@ impl<T> Container<T> for std::collections::BTreeSet<T>
 where
     T: Ord,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
@@ -128,7 +128,7 @@ impl<T> Container<T> for std::collections::LinkedList<T>
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
@@ -137,20 +137,20 @@ impl<T> Container<T> for std::collections::VecDeque<T>
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
 
 impl Container<&str> for &str {
-    fn does_contain(&self, item: &&str) -> bool {
-        self.contains(item)
+    fn contains(&self, item: &&str) -> bool {
+        <str>::contains(self, item)
     }
 }
 
 impl Container<&str> for String {
-    fn does_contain(&self, item: &&str) -> bool {
-        self.contains(item)
+    fn contains(&self, item: &&str) -> bool {
+        <str>::contains(self, item)
     }
 }
 
@@ -158,8 +158,8 @@ impl<T, const N: usize> Container<T> for [T; N]
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
-        self.contains(item)
+    fn contains(&self, item: &T) -> bool {
+        <[T]>::contains(self, item)
     }
 }
 
@@ -167,8 +167,8 @@ impl<T> Container<T> for &[T]
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
-        self.contains(item)
+    fn contains(&self, item: &T) -> bool {
+        <[T]>::contains(self, item)
     }
 }
 
@@ -176,7 +176,7 @@ impl<T> Container<&[T]> for &[T]
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &&[T]) -> bool {
+    fn contains(&self, item: &&[T]) -> bool {
         self.windows(item.len()).any(|slice| &slice == item)
     }
 }
@@ -185,10 +185,10 @@ impl<T, const N1: usize, const N: usize> Container<[T; N1]> for [T; N]
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &[T; N1]) -> bool {
+    fn contains(&self, item: &[T; N1]) -> bool {
         let container: &[T] = self;
         let item: &[T] = item;
-        container.does_contain(&item)
+        Container::contains(&container, &item)
     }
 }
 
@@ -196,10 +196,10 @@ impl<T, const N1: usize> Container<[T; N1]> for &[T]
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &[T; N1]) -> bool {
+    fn contains(&self, item: &[T; N1]) -> bool {
         let container: &[T] = self;
         let item: &[T] = item;
-        container.does_contain(&item)
+        Container::contains(&container, &item)
     }
 }
 
@@ -207,10 +207,10 @@ impl<T, const N: usize> Container<&[T]> for [T; N]
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &&[T]) -> bool {
+    fn contains(&self, item: &&[T]) -> bool {
         let container: &[T] = self;
         let item: &[T] = item;
-        container.does_contain(&item)
+        Container::contains(&container, &item)
     }
 }
 
@@ -218,10 +218,10 @@ impl<T, const N1: usize> Container<[T; N1]> for Vec<T>
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &[T; N1]) -> bool {
+    fn contains(&self, item: &[T; N1]) -> bool {
         let container: &[T] = self;
         let item: &[T] = item;
-        container.does_contain(&item)
+        Container::contains(&container, &item)
     }
 }
 
@@ -229,10 +229,10 @@ impl<T> Container<&[T]> for Vec<T>
 where
     T: PartialEq<T>,
 {
-    fn does_contain(&self, item: &&[T]) -> bool {
+    fn contains(&self, item: &&[T]) -> bool {
         let container: &[T] = self;
         let item: &[T] = item;
-        container.does_contain(&item)
+        Container::contains(&container, &item)
     }
 }
 
@@ -240,7 +240,7 @@ impl<T> Container<T> for std::ops::Range<T>
 where
     T: PartialOrd<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
@@ -249,7 +249,7 @@ impl<T> Container<T> for std::ops::RangeFrom<T>
 where
     T: PartialOrd<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
@@ -258,7 +258,7 @@ impl<T> Container<T> for std::ops::RangeTo<T>
 where
     T: PartialOrd<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
@@ -267,7 +267,7 @@ impl<T> Container<T> for std::ops::RangeFull
 where
     T: PartialOrd<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         std::ops::RangeBounds::contains(self, item)
     }
 }
@@ -276,7 +276,7 @@ impl<T> Container<T> for std::ops::RangeInclusive<T>
 where
     T: PartialOrd<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
@@ -285,7 +285,7 @@ impl<T> Container<T> for std::ops::RangeToInclusive<T>
 where
     T: PartialOrd<T>,
 {
-    fn does_contain(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }
 }
@@ -311,13 +311,13 @@ fn test_container() {
 
     let collections: &[&dyn Container<i32>] = &[&array, &slice, &vec, &opt, &res, &bts, &hs, &rng];
     for container in collections {
-        assert!(container.does_contain(&3));
+        assert!(container.contains(&3));
     }
 
     let str = "Hello World";
     let string = String::from("Hello World");
     let haystacks: &[&dyn Container<&str>] = &[&str, &string];
     for container in haystacks {
-        assert!(container.does_contain(&"Hello"));
+        assert!(container.contains(&"Hello"));
     }
 }
