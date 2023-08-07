@@ -296,6 +296,24 @@ impl<T, C: Container<T>> Container<T> for &C {
     }
 }
 
+impl<T, C: Container<T>> Container<T> for Box<C> {
+    fn contains(&self, item: &T) -> bool {
+        Container::contains(&**self, item)
+    }
+}
+
+impl<T, C: Container<T>> Container<T> for std::rc::Rc<C> {
+    fn contains(&self, item: &T) -> bool {
+        Container::contains(&**self, item)
+    }
+}
+
+impl<T, C: Container<T>> Container<T> for std::sync::Arc<C> {
+    fn contains(&self, item: &T) -> bool {
+        Container::contains(&**self, item)
+    }
+}
+
 #[test]
 fn test_container() {
     let array = [1, 2, 3, 4, 5];
