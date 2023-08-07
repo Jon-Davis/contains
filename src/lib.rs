@@ -93,10 +93,7 @@ where
     T: PartialEq<T>,
 {
     fn does_contain(&self, item: &T) -> bool {
-        match self {
-            Some(x) if x == item => true,
-            _ => false,
-        }
+        matches!(self, Some(x) if x == item)
     }
 }
 
@@ -105,10 +102,7 @@ where
     T: PartialEq<T>,
 {
     fn does_contain(&self, item: &T) -> bool {
-        match self {
-            Ok(x) if x == item => true,
-            _ => false,
-        }
+        matches!(self, Ok(x) if x == item)
     }
 }
 
