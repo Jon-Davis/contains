@@ -183,12 +183,7 @@ where
     T: PartialEq<T>,
 {
     fn does_contain(&self, item: &&[T]) -> bool {
-        for slice in self.windows(item.len()) {
-            if &slice == item {
-                return true;
-            }
-        }
-        return false;
+        self.windows(item.len()).any(|slice| &slice == item)
     }
 }
 
